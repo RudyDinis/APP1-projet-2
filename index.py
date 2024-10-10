@@ -24,36 +24,42 @@ def candidat(mot):
     '''
         On utilise la variable dico pour chercher qu'elle mot on été dit après le mot donné en argument pour les mettre dans la variable candidat_mot_suivant
     '''
+    global candidat_mot_suivant
+    candidat_mot_suivant = {} #remet la variable a 0raboule un mot
     for element in dico[mot]:
         if element[0] in candidat_mot_suivant:
             candidat_mot_suivant[element[0]] += 1
         else:
             candidat_mot_suivant[element[0]] = 1
 
-def choix_mot(n):
+def choix_mot():
     '''
         On Choisis le(s) mot(s) en utilisant Les chaînes de Markov et le(s) return
     '''
     mots = list(candidat_mot_suivant.keys())
     poids = list(candidat_mot_suivant.values())
-    mots_suivant = []
-    for _ in range(0, n):
-        mot_choisi = random.choices(mots, weights=poids)[0]# Choisi un mot au hasard en utilisant le poid pour faire une pondération
-        mots_suivant.append(mot_choisi)
+    mot_choisi = random.choices(mots, weights=poids)[0]# Choisi un mot au hasard en utilisant le poid pour faire une pondération
 
-        indice = mots.index(mot_choisi)
-        mots.pop(indice)
-        poids.pop(indice)
 
-    return mots_suivant
+    return mot_choisi
 
-def main(corpus, mot, n):
+#charge_corpus("fra_news_2023_1M-sentences.txt")
+
+def main(mot, nb_mot):
     '''
         Permet d'appeller une seule fonction pour appeller toutes les autres
     '''
-    charge_corpus(corpus)
-    candidat(mot)
-    return choix_mot(n)
+    phrase = mot
+    dernier_mot = mot
+
+    #Charger le corpus
+    for _ in range(0, nb_mot-1):
+        candidat(dernier_mot)
+        dernier_mot = choix_mot()
+        phrase += " " + dernier_mot
+    return phrase
 
 
-print(main("phrase.txt", "voiture", 3))
+print(int(4 / str('4')))
+
+
