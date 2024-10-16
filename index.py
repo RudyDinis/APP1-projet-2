@@ -5,20 +5,27 @@ import re
 #variable(s) global(s)
 dico = {}
 candidat_mot_suivant = {}
+taille_corpus = 1
 
-def charge_corpus(corpus_file):
+def charge_corpus(corpus_file, n):
     '''
-        On prend un fichier txt contenant des phrases et trie chaques mots pour les mettre dans la variable dico
-    '''
+    On prend un fichier txt contenant des phrases et trie chaque groupe de n mots pour les mettre dans la variable dico.
+    '''    
+    global taille_corpus
+    taille_corpus = n
     with open(corpus_file, encoding='utf-8') as file:
         for line in file:
             phrase = re.sub(r'[^\w\s]', '', line).split()
-            for indice in range(0, len(phrase)-2):
+            for indice in range(0, len(phrase) - n):
+                # Prendre les n mots consécutifs
+                key = " ".join(phrase[indice:indice + n])
+                next_word = phrase[indice + n]
                 
-                if (phrase[indice] + " " + phrase[indice +1]) in dico:
-                    dico[phrase[indice] + " " + phrase[indice +1]] += [[phrase[indice +2]]]
+                # Ajouter le n-gramme au dictionnaire
+                if key in dico:
+                    dico[key].append(next_word)
                 else:
-                    dico[phrase[indice] + " " + phrase[indice +1]] = [[phrase[indice + 2]]]
+                    dico[key] = [next_word]
 
 def candidat(mot):
     '''
@@ -26,11 +33,16 @@ def candidat(mot):
     '''
     global candidat_mot_suivant
     candidat_mot_suivant = {} #remet la variable a 0 un mot
-    for element in dico[mot]:
-        if element[0] in candidat_mot_suivant:
-            candidat_mot_suivant[element[0]] += 1
-        else:
-            candidat_mot_suivant[element[0]] = 1
+
+    try :
+        for element in dico[mot]:
+            if element in candidat_mot_suivant:
+                candidat_mot_suivant[element] += 1
+            else:
+                candidat_mot_suivant[element] = 1
+    except:
+        charge_corpus("phrase.txt", taille_corpus-1)
+        candidat(mot)
 
 def choix_mot():
     '''
@@ -42,7 +54,6 @@ def choix_mot():
 
     return mot_choisi
 
-charge_corpus("fra_news_2023_1M-sentences.txt")
 
 def main(mot, nb_mot):
     '''
@@ -59,4 +70,5 @@ def main(mot, nb_mot):
     return phrase
 
 
-print(main("les voitures", 2))
+charge_corpus("phrase.txt", 5)
+print(main("le", 3))
