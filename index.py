@@ -1,6 +1,7 @@
 #import(s)
 import random
 import re
+import argparse
 
 #variable(s) global(s)
 dico = {}
@@ -55,20 +56,43 @@ def choix_mot():
     return mot_choisi
 
 
-def main(mot, nb_mot):
+def main():
     '''
         Permet d'appeller une seule fonction pour appeller toutes les autres
     '''
+    mot = ""
+    nb_mot = 2
+
+    parser = argparse.ArgumentParser(
+        description="Afficheur d'image",
+        epilog="Exemple d'utilisation: python main.py --image image.ppm --filigrane 'ne pas copier'"
+    )
+
+    parser.add_argument('--texte', type=str, help="Portion initiale de texte utilisée pour la génération")
+    parser.add_argument('--nbchoix', type=int, help="Nombre de choix de mots proposés à l'utilisateur ")
+    parser.add_argument('--auto', type=str, help="")
+
+    args = parser.parse_args()
+
+    if args.texte:
+        mot = args.texte
+    if args.nbchoix:
+        nb_mot = args.nbchoix
+
+
+    #Charger le corpus
+    charge_corpus("phrase.txt", 1)
+
     phrase = mot
     dernier_mot = mot
 
-    #Charger le corpus
     for _ in range(0, nb_mot-1):
         candidat(dernier_mot) 
         dernier_mot = choix_mot()
         phrase += " " + dernier_mot
-    return phrase
 
+    #print(phrase)
 
-charge_corpus("phrase.txt", 5)
-print(main("le", 3))
+if __name__ == "__main__":
+    main()
+ 
